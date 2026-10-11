@@ -1,0 +1,9 @@
+step,rows
+Rows in raw export,30045
+Platform names standardised,2402
+Spend values converted from text,1502
+Blank revenue filled with 0 (no conversions),9780
+Duplicate rows removed,180
+Rows removed: clicks > impressions,25
+Rows removed: negative spend (refund adjustments),12
+Rows in clean dataset,29828

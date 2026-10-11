@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ad Campaign Dashboard</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --chip-off: #f0efec;
+    --accent: #2a78d6;
+    --c-google: #2a78d6;
+    --c-meta: #eb6834;
+    --c-linkedin: #1baf7a;
+    --c-microsoft: #eda100;
+    --c-tiktok: #e87ba4;
+    --c-spend: #b4b2a9;
+    --c-revenue: #6250d6;
+    --good: #0ca30c;
+    --good-text: #006300;
+    --warning: #fab219;
+    --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --text-primary: #f0efec;
+      --text-secondary: #c3c2b7;
+      --text-muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --chip-off: #262624;
+      --accent: #3987e5;
+      --c-google: #3987e5;
+      --c-meta: #d95926;
+      --c-linkedin: #199e70;
+      --c-microsoft: #c98500;
+      --c-tiktok: #d55181;
+      --c-spend: #5f5e5a;
+      --c-revenue: #9085e9;
+      --good-text: #0ca30c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #f0efec;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --chip-off: #262624;
+    --accent: #3987e5;
+    --c-google: #3987e5;
+    --c-meta: #d95926;
+    --c-linkedin: #199e70;
+    --c-microsoft: #c98500;
+    --c-tiktok: #d55181;
+    --c-spend: #5f5e5a;
+    --c-revenue: #9085e9;
+    --good-text: #0ca30c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 48px; }
+
+  header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; align-items: end; }
+  h1 { margin: 0; font-size: 24px; font-weight: 650; letter-spacing: -0.01em; }
+  .sub { margin: 4px 0 0; color: var(--text-secondary); }
+  .badge-sim {
+    font-size: 12px; color: var(--text-secondary); border: 1px solid var(--border);
+    border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+  }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center;
+    margin: 22px 0 18px; padding: 12px 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  .filter-label { font-size: 12px; color: var(--text-muted); margin-right: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--chip-off); color: var(--text-secondary);
+    border-radius: 999px; padding: 5px 11px; font: inherit; font-size: 13px;
+  }
+  .chip .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dot); opacity: 0.35; }
+  .chip[aria-pressed="true"] { background: var(--surface); color: var(--text-primary); border-color: var(--axis); }
+  .chip[aria-pressed="true"] .dot { opacity: 1; }
+  .chip:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  select {
+    font: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface);
+    border: 1px solid var(--axis); border-radius: 8px; padding: 5px 8px;
+  }
+  .reset { font: inherit; font-size: 13px; background: none; border: none; color: var(--accent); cursor: pointer; padding: 4px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .kpi .label { font-size: 12px; color: var(--text-secondary); }
+  .kpi .value { font-size: 26px; font-weight: 650; margin-top: 2px; letter-spacing: -0.01em; }
+  .kpi .note { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 16px 8px; min-width: 0; }
+  .card.full { grid-column: 1 / -1; }
+  .card h2 { margin: 0; font-size: 15px; font-weight: 600; }
+  .card .desc { margin: 2px 0 6px; color: var(--text-secondary); font-size: 13px; }
+  .chart { width: 100%; height: 300px; }
+  .chart.tall { height: 340px; }
+
+  .table-wrap { overflow-x: auto; margin: 6px 0 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 12px; }
+  th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+  td { font-variant-numeric: tabular-nums; }
+  .pdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .action { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 12px; }
+  .action .icon { font-size: 11px; }
+  .a-Scale { color: var(--good-text); }
+  .a-Keep { color: var(--text-secondary); }
+  .a-Optimize { color: var(--text-primary); }
+  .a-Optimize .icon { color: var(--warning); }
+  .a-Cut { color: var(--critical); }
+  .legend-note { font-size: 12px; color: var(--text-muted); margin: 0 0 8px; }
+
+  .insights ol { margin: 8px 0 12px; padding-left: 20px; }
+  .insights li { margin-bottom: 6px; color: var(--text-secondary); }
+  .insights li strong { color: var(--text-primary); font-weight: 600; }
+  footer { margin-top: 24px; font-size: 12px; color: var(--text-muted); }
+
+  @media (max-width: 980px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 720px) {
+    .wrap { padding: 20px 16px 40px; }
+    .grid { grid-template-columns: 1fr; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .kpi .value { font-size: 22px; }
+  }
+</style>
+<script>__PLOTLY_JS__</script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Ad Campaign Performance Dashboard</h1>
+      <p class="sub">Google, Meta, LinkedIn, Microsoft and TikTok ads &middot; Jan&ndash;Jun 2026 &middot; 11 campaigns</p>
+    </div>
+    <span class="badge-sim">Simulated data &middot; amounts in ₹</span>
+  </header>
+
+  <section class="filters" aria-label="Filters">
+    <div class="chips" id="platformChips"><span class="filter-label">Platform</span></div>
+    <div class="chips">
+      <span class="filter-label">Months</span>
+      <select id="fromMonth" aria-label="From month"></select>
+      <span style="color:var(--text-muted)">to</span>
+      <select id="toMonth" aria-label="To month"></select>
+    </div>
+    <button class="reset" id="resetBtn" type="button">Reset filters</button>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="Key metrics"></section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Return on ad spend by platform</h2>
+      <p class="desc">Revenue earned per ₹1 spent. Dashed line = 2.0x target.</p>
+      <div class="chart" id="roasChart"></div>
+    </div>
+    <div class="card">
+      <h2>Share of spend vs share of revenue</h2>
+      <p class="desc">Platforms where revenue share beats spend share deserve more budget.</p>
+      <div class="chart" id="shareChart"></div>
+    </div>
+    <div class="card full">
+      <h2>Monthly ROAS by platform</h2>
+      <p class="desc">Hover to compare platforms month by month.</p>
+      <div class="chart tall" id="trendChart"></div>
+    </div>
+    <div class="card full">
+      <h2>Campaign scorecard</h2>
+      <p class="desc">Every campaign ranked by ROAS, with a budget decision.</p>
+      <p class="legend-note">▲ Scale: ROAS 4x+ &nbsp;·&nbsp; ● Keep: 2&ndash;4x &nbsp;·&nbsp; ◆ Optimize: 1&ndash;2x &nbsp;·&nbsp; ✕ Cut: below 1x (losing money)</p>
+      <div class="table-wrap"><table id="campaignTable"></table></div>
+    </div>
+    <div class="card">
+      <h2>Cost per conversion by age group</h2>
+      <p class="desc">Lower is better.</p>
+      <div class="chart" id="ageChart"></div>
+    </div>
+    <div class="card">
+      <h2>Conversion rate by device</h2>
+      <p class="desc">Share of clicks that turned into a sale or lead.</p>
+      <div class="chart" id="deviceChart"></div>
+    </div>
+    <div class="card full insights">
+      <h2>Key findings (full period, all platforms)</h2>
+      <ol>__INSIGHTS__</ol>
+    </div>
+  </section>
+
+  <footer>Built by Ayush Raghav with Python, SQL (SQLite) and Plotly. Data is simulated using typical industry benchmarks for each platform.</footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+const TARGET_ROAS = __TARGET_ROAS__;
+const PLATFORM_VARS = {
+  "Google Ads": "--c-google", "Meta Ads": "--c-meta", "LinkedIn Ads": "--c-linkedin",
+  "Microsoft Ads": "--c-microsoft", "TikTok Ads": "--c-tiktok"
+};
+
+const state = { platforms: new Set(DATA.platforms), from: 0, to: DATA.months.length - 1 };
+
+// ---------- helpers ----------
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const pColor = p => css(PLATFORM_VARS[p]);
+const div = (a, b) => (b ? a / b : 0);
+
+function lakh(x) {
+  if (Math.abs(x) >= 1e7) return "₹" + (x / 1e7).toFixed(2) + " Cr";
+  if (Math.abs(x) >= 1e5) return "₹" + (x / 1e5).toFixed(1) + "L";
+  return "₹" + Math.round(x).toLocaleString("en-IN");
+}
+const rupees = x => "₹" + Math.round(x).toLocaleString("en-IN");
+const monthLabel = m => new Date(m + "-01T00:00:00").toLocaleString("en-US", { month: "short" });
+
+function action(roas) {
+  if (roas >= 4) return ["Scale", "▲"];
+  if (roas >= TARGET_ROAS) return ["Keep", "●"];
+  if (roas >= 1) return ["Optimize", "◆"];
+  return ["Cut", "✕"];
+}
+
+// Row layout: [month, campaign, age, device, impressions, clicks, spend, conversions, revenue]
+function filtered() {
+  return DATA.rows.filter(r =>
+    r[0] >= state.from && r[0] <= state.to &&
+    state.platforms.has(DATA.campaigns[r[1]].platform));
+}
+
+function totals(rows) {
+  const t = { impressions: 0, clicks: 0, spend: 0, conversions: 0, revenue: 0 };
+  for (const r of rows) { t.impressions += r[4]; t.clicks += r[5]; t.spend += r[6]; t.conversions += r[7]; t.revenue += r[8]; }
+  t.roas = div(t.revenue, t.spend);
+  t.cpa = div(t.spend, t.conversions);
+  t.ctr = 100 * div(t.clicks, t.impressions);
+  t.cvr = 100 * div(t.conversions, t.clicks);
+  return t;
+}
+
+function groupBy(rows, keyFn) {
+  const groups = new Map();
+  for (const r of rows) {
+    const k = keyFn(r);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  }
+  return new Map([...groups].map(([k, v]) => [k, totals(v)]));
+}
+
+function baseLayout(extra = {}) {
+  return Object.assign({
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", size: 12, color: css("--text-secondary") },
+    margin: { l: 56, r: 16, t: 8, b: 40 },
+    hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--axis"), font: { color: css("--text-primary") } },
+    xaxis: { gridcolor: css("--grid"), linecolor: css("--axis"), zerolinecolor: css("--axis"), tickfont: { color: css("--text-muted") } },
+    yaxis: { gridcolor: css("--grid"), linecolor: css("--axis"), zerolinecolor: css("--axis"), tickfont: { color: css("--text-muted") } },
+    showlegend: false, bargap: 0.45,
+  }, extra);
+}
+const CONFIG = { displayModeBar: false, responsive: true };
+
+function targetLine(axis = "x") {
+  const line = { color: css("--text-muted"), width: 1.5, dash: "dash" };
+  return axis === "x"
+    ? { type: "line", xref: "x", yref: "paper", x0: TARGET_ROAS, x1: TARGET_ROAS, y0: 0, y1: 1, line }
+    : { type: "line", xref: "paper", yref: "y", x0: 0, x1: 1, y0: TARGET_ROAS, y1: TARGET_ROAS, line };
+}
+
+// ---------- render ----------
+function renderKpis(t) {
+  const tiles = [
+    ["Ad spend", lakh(t.spend), "total invested"],
+    ["Revenue", lakh(t.revenue), "from ad conversions"],
+    ["ROAS", t.roas.toFixed(2) + "x", `target ${TARGET_ROAS.toFixed(1)}x`],
+    ["Conversions", Math.round(t.conversions).toLocaleString("en-IN"), "sales and leads"],
+    ["Cost per conversion", rupees(t.cpa), "CPA"],
+    ["Click-through rate", t.ctr.toFixed(2) + "%", Math.round(t.clicks).toLocaleString("en-IN") + " clicks"],
+  ];
+  document.getElementById("kpis").innerHTML = tiles.map(([label, value, note]) =>
+    `<div class="kpi"><div class="label">${label}</div><div class="value">${value}</div><div class="note">${note}</div></div>`
+  ).join("");
+}
+
+function renderRoas(rows) {
+  const byP = groupBy(rows, r => DATA.campaigns[r[1]].platform);
+  const ps = [...byP.keys()].sort((a, b) => byP.get(a).roas - byP.get(b).roas);
+  Plotly.react("roasChart", [{
+    type: "bar", orientation: "h",
+    y: ps, x: ps.map(p => byP.get(p).roas),
+    marker: { color: ps.map(pColor), cornerradius: 4 },
+    text: ps.map(p => byP.get(p).roas.toFixed(2) + "x"), textposition: "outside", cliponaxis: false,
+    textfont: { color: css("--text-primary") },
+    customdata: ps.map(p => [lakh(byP.get(p).spend), lakh(byP.get(p).revenue)]),
+    hovertemplate: "<b>%{y}</b><br>ROAS %{x:.2f}x<br>Spend %{customdata[0]}<br>Revenue %{customdata[1]}<extra></extra>",
+  }], baseLayout({
+    margin: { l: 104, r: 48, t: 8, b: 36 },
+    xaxis: { ...baseLayout().xaxis, title: { text: "ROAS (x)", font: { size: 12 } }, rangemode: "tozero" },
+    yaxis: { ...baseLayout().yaxis, gridcolor: "rgba(0,0,0,0)", tickfont: { color: css("--text-secondary") } },
+    shapes: [targetLine("x")],
+  }), CONFIG);
+}
+
+function renderShare(rows) {
+  const byP = groupBy(rows, r => DATA.campaigns[r[1]].platform);
+  const t = totals(rows);
+  const ps = DATA.platforms.filter(p => byP.has(p));
+  const spendShare = ps.map(p => 100 * div(byP.get(p).spend, t.spend));
+  const revShare = ps.map(p => 100 * div(byP.get(p).revenue, t.revenue));
+  const short = ps.map(p => p.replace(" Ads", ""));
+  Plotly.react("shareChart", [
+    { type: "bar", name: "Share of spend", x: short, y: spendShare, marker: { color: css("--c-spend"), cornerradius: 3 },
+      hovertemplate: "%{x}<br>Share of spend %{y:.1f}%<extra></extra>" },
+    { type: "bar", name: "Share of revenue", x: short, y: revShare, marker: { color: css("--c-revenue"), cornerradius: 3 },
+      text: revShare.map(v => v.toFixed(0) + "%"), textposition: "outside", cliponaxis: false,
+      textfont: { color: css("--text-primary"), size: 11 },
+      hovertemplate: "%{x}<br>Share of revenue %{y:.1f}%<extra></extra>" },
+  ], baseLayout({
+    barmode: "group", bargap: 0.3, bargroupgap: 0.08, showlegend: true,
+    legend: { orientation: "h", x: 0, y: 1.02, yanchor: "bottom", font: { color: css("--text-secondary") } },
+    margin: { l: 48, r: 12, t: 28, b: 36 },
+    yaxis: { ...baseLayout().yaxis, ticksuffix: "%", rangemode: "tozero" },
+  }), CONFIG);
+}
+
+function renderTrend(rows) {
+  const months = DATA.months.slice(state.from, state.to + 1);
+  const traces = DATA.platforms.filter(p => state.platforms.has(p)).map(p => {
+    const byM = groupBy(rows.filter(r => DATA.campaigns[r[1]].platform === p), r => r[0]);
+    const idx = months.map((_, i) => state.from + i);
+    return {
+      type: "scatter", mode: "lines+markers", name: p,
+      x: months.map(monthLabel), y: idx.map(i => (byM.get(i) || { roas: null }).roas),
+      line: { color: pColor(p), width: 2 },
+      marker: { color: pColor(p), size: 8, line: { color: css("--surface"), width: 2 } },
+      hovertemplate: `${p}: %{y:.2f}x<extra></extra>`,
+    };
+  });
+  Plotly.react("trendChart", traces, baseLayout({
+    showlegend: true, hovermode: "x unified",
+    legend: { orientation: "h", x: 0, y: 1.02, yanchor: "bottom", font: { color: css("--text-secondary") } },
+    margin: { l: 48, r: 16, t: 36, b: 36 },
+    yaxis: { ...baseLayout().yaxis, title: { text: "ROAS (x)", font: { size: 12 } }, rangemode: "tozero" },
+    xaxis: { ...baseLayout().xaxis, showspikes: true, spikemode: "across", spikethickness: 1, spikecolor: css("--axis"), spikedash: "solid" },
+    shapes: [targetLine("y")],
+  }), CONFIG);
+}
+
+function renderTable(rows) {
+  const byC = groupBy(rows, r => r[1]);
+  const ids = [...byC.keys()].sort((a, b) => byC.get(b).roas - byC.get(a).roas);
+  const head = "<thead><tr><th>Campaign</th><th>Platform</th><th>Spend</th><th>Revenue</th><th>ROAS</th><th>CPA</th><th>CTR</th><th>Decision</th></tr></thead>";
+  const body = ids.map(id => {
+    const c = DATA.campaigns[id], t = byC.get(id), [a, icon] = action(t.roas);
+    return `<tr><td>${c.name}</td><td><span class="pdot" style="background:${pColor(c.platform)}"></span>${c.platform}</td>
+      <td>${lakh(t.spend)}</td><td>${lakh(t.revenue)}</td><td><b>${t.roas.toFixed(2)}x</b></td>
+      <td>${rupees(t.cpa)}</td><td>${t.ctr.toFixed(2)}%</td>
+      <td><span class="action a-${a}"><span class="icon" aria-hidden="true">${icon}</span>${a}</span></td></tr>`;
+  }).join("");
+  document.getElementById("campaignTable").innerHTML = head + "<tbody>" + body + "</tbody>";
+}
+
+function renderSimpleBar(el, groups, order, valueFn, fmt, hoverLabel, axisSuffix) {
+  const keys = order.filter(k => groups.has(k));
+  Plotly.react(el, [{
+    type: "bar", x: keys, y: keys.map(k => valueFn(groups.get(k))),
+    marker: { color: css("--accent"), cornerradius: 4 },
+    text: keys.map(k => fmt(valueFn(groups.get(k)))), textposition: "outside", cliponaxis: false,
+    textfont: { color: css("--text-primary") },
+    hovertemplate: `%{x}<br>${hoverLabel}: %{text}<extra></extra>`,
+  }], baseLayout({
+    margin: { l: 56, r: 12, t: 20, b: 36 },
+    yaxis: { ...baseLayout().yaxis, rangemode: "tozero", ticksuffix: axisSuffix.suffix || "", tickprefix: axisSuffix.prefix || "" },
+  }), CONFIG);
+}
+
+function render() {
+  const rows = filtered();
+  renderKpis(totals(rows));
+  renderRoas(rows);
+  renderShare(rows);
+  renderTrend(rows);
+  renderTable(rows);
+  renderSimpleBar("ageChart", groupBy(rows, r => DATA.ages[r[2]]), DATA.ages, t => t.cpa, rupees, "Cost per conversion", { prefix: "₹" });
+  renderSimpleBar("deviceChart", groupBy(rows, r => DATA.devices[r[3]]), DATA.devices, t => t.cvr, v => v.toFixed(2) + "%", "Conversion rate", { suffix: "%" });
+}
+
+// ---------- filters ----------
+function setupFilters() {
+  const chips = document.getElementById("platformChips");
+  DATA.platforms.forEach(p => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.dataset.platform = p;
+    b.setAttribute("aria-pressed", "true");
+    b.innerHTML = `<span class="dot" style="--dot: var(${PLATFORM_VARS[p]})"></span>${p.replace(" Ads", "")}`;
+    b.addEventListener("click", () => {
+      if (state.platforms.has(p)) {
+        if (state.platforms.size === 1) return;      // keep at least one platform selected
+        state.platforms.delete(p);
+      } else state.platforms.add(p);
+      b.setAttribute("aria-pressed", state.platforms.has(p));
+      render();
+    });
+    chips.appendChild(b);
+  });
+
+  const from = document.getElementById("fromMonth"), to = document.getElementById("toMonth");
+  DATA.months.forEach((m, i) => {
+    const label = new Date(m + "-01T00:00:00").toLocaleString("en-US", { month: "short", year: "numeric" });
+    from.add(new Option(label, i)); to.add(new Option(label, i));
+  });
+  from.value = state.from; to.value = state.to;
+  from.addEventListener("change", () => { state.from = +from.value; if (state.from > state.to) { state.to = state.from; to.value = state.to; } render(); });
+  to.addEventListener("change", () => { state.to = +to.value; if (state.to < state.from) { state.from = state.to; from.value = state.from; } render(); });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    state.platforms = new Set(DATA.platforms); state.from = 0; state.to = DATA.months.length - 1;
+    from.value = state.from; to.value = state.to;
+    chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "true"));
+    render();
+  });
+}
+
+setupFilters();
+render();
+// Re-draw charts with the right colours if the system switches light/dark mode
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+</body>
+</html>
