@@ -4,7 +4,7 @@ An end-to-end marketing analytics project that compares **11 ad campaigns across
 
 **Tools:** Python (Pandas) · SQL (SQLite) · Plotly · Excel · Power BI (guide included)
 
-### [▶ Open the live interactive dashboard](https://ayush-rag.github.io/ad-campaign-performance-dashboard/)
+### [▶ Open the live interactive dashboard](https://ayush-rag.github.io/Ad-campaign-performance-dashboard/)
 
 ![Dashboard overview](images/dashboard_overview.png)
 
@@ -152,7 +152,7 @@ ad-campaign-performance-dashboard/
 ## How to run
 
 ```bash
-git clone https://github.com/Ayush-rag/ad-campaign-performance-dashboard.git
+git clone https://github.com/Ayush-rag/Ad-campaign-performance-dashboard.git
 cd ad-campaign-performance-dashboard
 pip install -r requirements.txt
 python main.py
